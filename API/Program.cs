@@ -12,7 +12,13 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<DataContext>(opt=>{
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+}); //Connection dengan Database + setting di middleware + harus ditambahkan di appsetting.development.json
+
+builder.Services.AddCors(opt=>{
+    opt.AddPolicy("CorsPolicy",policy =>{
+        policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
+    });
+}); //connection dengan react
 
 var app = builder.Build();
 
@@ -22,6 +28,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("CorsPolicy"); //Middleware untuk connect dengan react (nama dalam tanda kurung harus sesuai dengan nama pada service diatas)
 
 app.UseHttpsRedirection();
 
@@ -43,6 +51,6 @@ catch (Exception ex)
     
     var logger = services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex,"An Error occured during migration");
-}
+} //Middleware untuk connect dengan database
 
 app.Run();
