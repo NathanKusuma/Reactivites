@@ -1,19 +1,19 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from "react";
 import { Button, Card, Image } from "semantic-ui-react";
-import { Activity } from "../../../app/models/activity";
+import LoadingComponent from "../../../app/layout/LoadingComponent";
+import { useStore } from "../../../app/stores/store";
 
-interface Props {
-  activity: Activity; //tidak diberi kurung kotak karena hanya mengambil satu activity dari models activity.ts
-  cancelSelectActivity: () => void; //Karena ini function harus diberi return. diberi return void karena aku tidak ingin mereturn apa"
-  openForm: (id: string) => void;
-}
+export default function ActivityDetails() {
+  const { activityStore } = useStore();
+  const {
+    selectedActivity: activity,
+    openForm,
+    cancelSelectedActivity,
+  } = activityStore;
 
-export default function ActivityDetails({
-  activity,
-  cancelSelectActivity,
-  openForm,
-}: Props) {
+  if (!activity) return <LoadingComponent />;
+
   return (
     <div>
       <Card fluid>
@@ -34,7 +34,7 @@ export default function ActivityDetails({
               content="Edit"
             />
             <Button
-              onClick={cancelSelectActivity}
+              onClick={cancelSelectedActivity}
               basic
               color="grey"
               content="Cancel"
