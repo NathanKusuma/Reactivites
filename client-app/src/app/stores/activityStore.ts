@@ -9,7 +9,7 @@ export default class activityStore {
   selectedActivity: Activity | undefined = undefined;
   editMode = false;
   loading = false;
-  loadingInitial = true;
+  loadingInitial = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -22,12 +22,11 @@ export default class activityStore {
   } //Computed property to sort by date
 
   loadActivities = async () => {
+    this.setLoadingInitial(true);
     try {
       const activities = await agent.Activities.list();
       activities.forEach((activity) => {
-        activity.date = activity.date.split("T")[0];
-        this.activityRegistry.set(activity.id, activity); //using map
-        // this.activities.push(activity); using array
+        this.setActivity(activity);
       });
       this.setLoadingInitial(false);
     } catch (error) {
@@ -35,33 +34,48 @@ export default class activityStore {
       this.setLoadingInitial(false);
     }
   };
-  setLoadingInitial = (state: boolean) => {
-    this.loadingInitial = state;
-  };
   //Note
   //Pada baris sebelum try catch dilakukan Secara synchronus,pada try and catch dilakukan secara asynchronus
-  //Menggunaka arrow function untuk mengaitkan setTitle dengan class activityStore
+  //Menggunaka arrow function untuk mengaitkan dengan class activityStore
+
+  loadActivity = async (id: string) => {
+    let activity = this.getActivity(id);
+    if (activity) {
+      this.selectedActivity = activity;
+      return activity;
+    } else {
+      this.setLoadingInitial(true);
+      try {
+        activity = await agent.Activities.details(id);
+        this.setActivity(activity);
+        runInAction(() => {
+          this.selectedActivity = activity;
+        });
+        this.setLoadingInitial(false);
+        return activity;
+      } catch (error) {
+        console.log(error);
+        this.setLoadingInitial(false);
+      }
+    }
+  };
+
+  private getActivity = (id: string) => {
+    return this.activityRegistry.get(id);
+  };
+
+  private setActivity = (activity: Activity) => {
+    activity.date = activity.date.split("T")[0];
+    this.activityRegistry.set(activity.id, activity); //using map
+    // this.activities.push(activity); using array
+  };
+  //Note
   //Pada try colomn digunakan untuk merubah date menjadi type date bukan string
   //T merupakan parameter dari type axios pada file agent.ts
-  //setLoadingInitial merupakan new action untuk mencegah MobX strict,karena jika langsung mengidentifikasi di dalam action loadActivities perlu di tambahkan runInAction
 
-  selectActivity = (id: string) => {
-    this.selectedActivity = this.activityRegistry.get(id); //using map
-    // this.selectedActivity = this.activities.find((a) => a.id === id); using array
-  }; //Untuk select data
-
-  cancelSelectedActivity = () => {
-    this.selectedActivity = undefined;
-  }; //Untuk cancel select data
-
-  openForm = (id?: string) => {
-    id ? this.selectActivity(id) : this.cancelSelectedActivity();
-    this.editMode = true;
-  };
-
-  closeForm = () => {
-    this.editMode = false;
-  };
+  setLoadingInitial = (state: boolean) => {
+    this.loadingInitial = state;
+  }; //setLoadingInitial merupakan new action untuk mencegah MobX strict,karena jika langsung mengidentifikasi di dalam action loadActivities perlu di tambahkan runInAction
 
   createActivity = async (activity: Activity) => {
     this.loading = true;
@@ -122,3 +136,21 @@ export default class activityStore {
     }
   };
 }
+
+// selectActivity = (id: string) => {
+//   this.selectedActivity = this.activityRegistry.get(id); //using map
+//   // this.selectedActivity = this.activities.find((a) => a.id === id); using array
+// }; //Untuk select data
+
+// cancelSelectedActivity = () => {
+//   this.selectedActivity = undefined;
+// }; //Untuk cancel select data
+
+// openForm = (id?: string) => {
+//   id ? this.selectActivity(id) : this.cancelSelectedActivity();
+//   this.editMode = true;
+// };
+
+// closeForm = () => {
+//   this.editMode = false;
+// };
