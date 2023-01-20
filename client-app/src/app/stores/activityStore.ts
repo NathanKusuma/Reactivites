@@ -21,6 +21,18 @@ export default class activityStore {
     );
   } //Computed property to sort by date
 
+  get groupedActivites() {
+    return Object.entries(
+      this.activitiesByDate.reduce((activities, activity) => {
+        const date = activity.date;
+        activities[date] = activities[date]
+          ? [...activities[date], activity]
+          : [activity];
+        return activities;
+      }, {} as { [key: string]: Activity[] }) //Object memiliki key yang berisi string activitesByDate dan setiap date memiliki array activity di dalamnya (interface nya)
+    );
+  }
+
   loadActivities = async () => {
     this.setLoadingInitial(true);
     try {
