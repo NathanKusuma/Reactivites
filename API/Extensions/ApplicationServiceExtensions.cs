@@ -1,5 +1,7 @@
 using Application.Activities;
 using Application.Core;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -29,12 +31,14 @@ namespace API.Extensions
         opt.AddPolicy("CorsPolicy",policy =>{
         policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
             });
-         }); //connection dengan react
+         }); //connection dengan react menggunakan corspolicy
 
         services.AddMediatR(typeof(List.Handler)); //Connection dengan Mediator
-
         services.AddAutoMapper(typeof(MappingProfiles).Assembly); //Connection dengan AutoMapping
         //Assembly digunakan menemukan data pada MappingProfiles
+        services.AddFluentValidationAutoValidation(); //Connection dengan Fluent Validation
+        services.AddValidatorsFromAssemblyContaining<Create>();
+
 
         return services; 
 
