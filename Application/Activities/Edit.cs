@@ -1,3 +1,4 @@
+using Application.Core;
 using AutoMapper;
 using Domain;
 using FluentValidation;
@@ -8,7 +9,7 @@ namespace Application.Activities
 {
     public class Edit
     {
-        public class Command : IRequest
+        public class Command : IRequest<Results<Unit>>
         {
             public Activity Activity { get; set; }
         }
@@ -19,7 +20,7 @@ namespace Application.Activities
             }
         }
 
-        public class Handler : IRequestHandler<Command>
+        public class Handler : IRequestHandler<Command,Results<Unit>>
         {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
@@ -29,9 +30,11 @@ namespace Application.Activities
             _context = context;
             }
 
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Results<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
              var activity = await _context.Activities.FindAsync(request.Activity.Id);//Untuk get database
+
+             if(activity == null) return null;
             
             //cara banyak item
             _mapper.Map(request.Activity,activity);//auto mapper akan mengambil dari Activity dan akan mengupdate pada activity
@@ -40,8 +43,10 @@ namespace Application.Activities
             //  activity.Title = request.Activity.Title ?? activity.Title;
             //  //?? diberikan apabila title tidak di update sehingga content db tetap sama
             
-             await _context.SaveChangesAsync();
-             return Unit.Value;
+             var result=await _context.SaveChangesAsync() > 0;
+             if(!result) return Results<Unit>.Failure("Failed to update Activity");
+
+             return Results<Unit>.Success(Unit.Value);
             }
         }
     }

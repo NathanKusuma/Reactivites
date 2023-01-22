@@ -1,3 +1,4 @@
+using Application.Core;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -7,9 +8,9 @@ namespace Application.Activities
 {
     public class List
     {
-        public class Query : IRequest<List<Activity>>{} //Untuk menampung data dan interface nya
+        public class Query : IRequest<Results<List<Activity>>>{} //Untuk menampung data dan interface nya
 
-        public class Handler : IRequestHandler<Query, List<Activity>> //Untuk mengatur data n connection nya
+        public class Handler : IRequestHandler<Query, Results<List<Activity>>> //Untuk mengatur data n connection nya
         {
 
         private readonly DataContext _context;
@@ -19,9 +20,10 @@ namespace Application.Activities
                 
             }
 
-            public async Task<List<Activity>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Results<List<Activity>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                return await _context.Activities.ToListAsync();
+                 var activity = await _context.Activities.ToListAsync();
+                 return Results<List<Activity>>.Success(activity);
             }
         }
     }

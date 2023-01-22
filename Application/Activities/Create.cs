@@ -1,3 +1,4 @@
+using Application.Core;
 using Domain;
 using FluentValidation;
 using MediatR;
@@ -7,7 +8,7 @@ namespace Application.Activities
 {
     public class Create
     {
-        public class Command:IRequest //Command tidak mereturn data seperti query
+        public class Command:IRequest<Results<Unit>> //Command tidak mereturn data seperti query
         {
             public Activity Activity { get; set; }
         }
@@ -20,7 +21,7 @@ namespace Application.Activities
             }
         }
 
-        public class Handler : IRequestHandler<Command>
+        public class Handler : IRequestHandler<Command,Results<Unit>>
         {
         private readonly DataContext _context;
             public Handler(DataContext context)
@@ -28,11 +29,12 @@ namespace Application.Activities
             _context = context;
                 
             }
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Results<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
                _context.Activities.Add(request.Activity); //code untuk mencari data (tidak dilakukan secara async)
-               await _context.SaveChangesAsync();//code untuk save data (dilakukan secara async)
-               return Unit.Value;
+               var result = await _context.SaveChangesAsync() > 0;//code untuk save data (dilakukan secara async)
+               if(!result) Results<Unit>.Failure("Failed To Create Activity");
+               return Results<Unit>.Success(Unit.Value);
                //Unit merupakan object kosong, return harus dilakukan karena untuk melanjutkan program harus memberikan return
             }
         }
