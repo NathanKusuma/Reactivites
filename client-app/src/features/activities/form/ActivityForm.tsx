@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Button, Segment } from "semantic-ui-react";
+import { Button, Header, Segment } from "semantic-ui-react";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { Activity } from "../../../app/models/activity";
 import { useStore } from "../../../app/stores/store";
@@ -23,7 +23,7 @@ export default observer(function ActivityForm() {
     createActivity,
     updateActivity,
   } = activityStore;
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [activity, setActivity] = useState<Activity>({
@@ -40,7 +40,7 @@ export default observer(function ActivityForm() {
     title: Yup.string().required("The activity title is required"),
     description: Yup.string().required("The activity description is required"),
     category: Yup.string().required("The activity category is required"),
-    date: Yup.string().required("The activity date is required"),
+    date: Yup.string().required("The activity date is required").nullable(),
     venue: Yup.string().required("The activity venue is required"),
     city: Yup.string().required("The activity city is required"),
   });
@@ -70,13 +70,14 @@ export default observer(function ActivityForm() {
 
   return (
     <Segment clearing>
+      <Header content="Activity Details" sub color="teal" />
       <Formik
         validationSchema={validationSchema}
         enableReinitialize //changes the value of the form according to the change in the value of the props used to fill the initial value of the form.
         initialValues={activity}
         onSubmit={(values) => handleFormSubmit(values)}
       >
-        {({ handleSubmit }) => (
+        {({ handleSubmit, isValid, isSubmitting, dirty }) => (
           <Form className="ui form" onSubmit={handleSubmit} autoComplete="off">
             <MyTextInput name="title" placeholder="Title" />
             <MyTextArea placeholder="Description" name="description" rows={3} />
@@ -92,9 +93,11 @@ export default observer(function ActivityForm() {
               timeCaption="time"
               dateFormat="MMMM d, yyyy h:mm aa"
             />
+            <Header content="Location Details" sub color="teal" />
             <MyTextInput placeholder="City" name="city" />
             <MyTextInput placeholder="Venue" name="venue" />
             <Button
+              disabled={isSubmitting || !dirty || !isValid}
               loading={loading}
               floated="right"
               positive
