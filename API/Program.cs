@@ -28,7 +28,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("CorsPolicy"); //Middleware untuk connect dengan react (nama dalam tanda kurung harus sesuai dengan nama pada service diatas)
 
-app.UseHttpsRedirection();
+app.UseAuthentication();
 
 app.UseAuthorization();
 

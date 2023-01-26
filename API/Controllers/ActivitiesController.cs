@@ -1,6 +1,7 @@
 using Application.Activities;
 using Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace API.Controllers
@@ -15,6 +16,7 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new List.Query()));
         }
 
+        [Authorize]
         [HttpGet("{id}")]// api/activities/abcballala
 
         public async Task<IActionResult> GetActivity(Guid id)
@@ -28,6 +30,7 @@ namespace API.Controllers
            
         }
 
+      
       [HttpPost]
 
       public async Task<IActionResult> CreateActivity(Activity activity)
