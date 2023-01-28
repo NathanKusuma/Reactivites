@@ -13,13 +13,15 @@ namespace API.Extensions
        {
         services.AddIdentityCore<AppUser>(opt =>{
             opt.Password.RequireNonAlphanumeric = false;
+            opt.User.RequireUniqueEmail = true;
         })
         .AddEntityFrameworkStores<DataContext>();
 
          var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes("this is most super secret key with jwt token"));
+                Encoding.UTF8.GetBytes(config["TokenKey"]));
                 
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt=>{
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(opt=>{
             opt.TokenValidationParameters=new TokenValidationParameters
             {
                 ValidateIssuerSigningKey=true,

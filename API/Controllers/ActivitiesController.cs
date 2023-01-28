@@ -10,15 +10,12 @@ namespace API.Controllers
     {
        
         [HttpGet]// api/activities
-
         public async Task<IActionResult> GetActivites()
         {
             return HandleResult(await Mediator.Send(new List.Query()));
         }
 
-        [Authorize]
         [HttpGet("{id}")]// api/activities/abcballala
-
         public async Task<IActionResult> GetActivity(Guid id)
         {
 
@@ -32,14 +29,12 @@ namespace API.Controllers
 
       
       [HttpPost]
-
       public async Task<IActionResult> CreateActivity(Activity activity)
       {
         return HandleResult(await Mediator.Send(new Create.Command{Activity=activity}));
       }
 
       [HttpPut("{id}")]
-
       public async Task<IActionResult> EditActivity(Guid id,Activity activity)
       {
         activity.Id = id; //membuat persamaan antara id dari controller dengan database
@@ -47,7 +42,6 @@ namespace API.Controllers
       }
 
       [HttpDelete("{id}")]
-
       public async Task<IActionResult> DeleteActivity(Guid id)
       {
         return HandleResult(await Mediator.Send(new Delete.Command{Id=id}));
