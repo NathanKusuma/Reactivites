@@ -12,6 +12,15 @@ const sleep = (delay: number) => {
 }; //Membuat const delay dengan promise dan set timeout
 
 axios.defaults.baseURL = "http://localhost:5000/api";
+const responseBody = <T>(response: AxiosResponse<T>) => response.data; //Passing response data
+
+axios.interceptors.request.use((config) => {
+  const token = store.commonStore.token;
+  if (token && config.headers) {
+    (config.headers as any).Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 axios.interceptors.response.use(
   async (response) => {
@@ -53,10 +62,9 @@ axios.interceptors.response.use(
         router.navigate("/server-error");
         break;
     }
+    return Promise.reject(error);
   }
 ); //execute delay n promise dengan axios
-
-const responseBody = <T>(response: AxiosResponse<T>) => response.data; //Passing response data
 
 const requests = {
   get: <T>(url: string) => axios.get<T>(url).then(responseBody),
