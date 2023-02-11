@@ -1,7 +1,9 @@
 using Application.Activities;
 using Application.Core;
+using Application.Interfaces;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Infrastructure.Security;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -38,7 +40,8 @@ namespace API.Extensions
         //Assembly digunakan menemukan data pada MappingProfiles
         services.AddFluentValidationAutoValidation(); //Connection dengan Fluent Validation
         services.AddValidatorsFromAssemblyContaining<Create>();
-
+        services.AddHttpContextAccessor();//Connection dengan infrastructure folder
+        services.AddScoped<IUserAccessor,UserAccessor>();//Untuk menginject application handler
 
         return services; 
 
