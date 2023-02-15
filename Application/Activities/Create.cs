@@ -44,6 +44,8 @@ namespace Application.Activities
                     IsHost=true
                 }; //Creating new attendee that connected with activity
 
+                request.Activity.Attendees.Add(attendee);
+
                _context.Activities.Add(request.Activity); //code untuk mencari data (tidak dilakukan secara async)
 
                var result = await _context.SaveChangesAsync() > 0;//code untuk save data (dilakukan secara async)
