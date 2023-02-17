@@ -46,7 +46,9 @@ namespace Application.Activities
                     activity.IsCancelled = !activity.IsCancelled;
 
                 if(attendance !=null && hostUsername != user.UserName)
+                {
                     activity.Attendees.Remove(attendance);
+                }
 
                 if(attendance == null)
                 {
